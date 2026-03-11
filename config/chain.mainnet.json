@@ -1,64 +1,209 @@
 {
-  "chainId": 0,
-  "rpcUrl": "",
-  "backupRpcUrls": [],
-  "explorerBaseUrl": "",
-  "confirmationsRequired": 2,
-  "recommendedGasBufferNative": "0.10",
-  "nativeToken": {
-    "type": "native",
-    "symbol": "WLC"
-  },
-  "contracts": {
-    "registry": "",
-    "verifier": "",
-    "rewardDistributor": "",
-    "token": ""
-  },
-  "supportedTokens": [
-    {
-      "id": "wlc",
-      "symbol": "WLC",
-      "kind": "native",
-      "decimals": 18,
-      "adapter": "wlc",
-      "enabled": true
+  "defaultNetwork": "worldland-mainnet",
+  "networks": {
+    "worldland-mainnet": {
+      "id": "worldland-mainnet",
+      "label": "Worldland Mainnet",
+      "enabled": true,
+      "chainId": 0,
+      "rpcUrl": "",
+      "backupRpcUrls": [],
+      "explorerBaseUrl": "",
+      "confirmationsRequired": 2,
+      "recommendedGasBufferNative": "0.10",
+      "nativeToken": {
+        "type": "native",
+        "symbol": "WLC"
+      },
+      "contracts": {
+        "registry": "",
+        "verifier": "",
+        "rewardDistributor": "",
+        "token": ""
+      },
+      "discoveryDefaults": {
+        "writableRoot": "./shared-root",
+        "resultRoot": "./shared-root"
+      },
+      "payments": {
+        "defaultTokenId": "worldland-wlc",
+        "supportedTokens": [
+          {
+            "id": "worldland-wlc",
+            "symbol": "WLC",
+            "kind": "native",
+            "decimals": 18,
+            "adapter": "native",
+            "enabled": true
+          },
+          {
+            "id": "worldland-wl",
+            "symbol": "WL",
+            "kind": "erc20",
+            "address": "",
+            "decimals": 18,
+            "adapter": "erc20",
+            "enabled": false,
+            "reasonDisabled": "WL conversion flow is not active in the MVP."
+          },
+          {
+            "id": "worldland-koin",
+            "symbol": "KOIN",
+            "kind": "erc20",
+            "address": "",
+            "decimals": 18,
+            "adapter": "erc20",
+            "enabled": false,
+            "reasonDisabled": "KOIN conversion flow is not active in the MVP."
+          }
+        ]
+      },
+      "fees": {
+        "minimumPremiumByJobType": {
+          "Simple": "0.01",
+          "General": "0.03",
+          "Collective": "0.07"
+        }
+      },
+      "releaseLinks": {
+        "app": "https://github.com/sinmb79/koinara-app/releases",
+        "node": "https://github.com/sinmb79/Koinara-node/releases",
+        "protocol": "https://github.com/sinmb79/koinara/releases"
+      }
     },
-    {
-      "id": "wl",
-      "symbol": "WL",
-      "kind": "erc20",
-      "address": "",
-      "decimals": 18,
-      "adapter": "wl",
+    "ethereum-mainnet": {
+      "id": "ethereum-mainnet",
+      "label": "Ethereum Mainnet",
       "enabled": false,
-      "reasonDisabled": "WL conversion flow is not active in the MVP."
+      "reasonDisabled": "Protocol deployment pending on Ethereum mainnet.",
+      "chainId": 1,
+      "rpcUrl": "",
+      "backupRpcUrls": [],
+      "explorerBaseUrl": "https://etherscan.io",
+      "confirmationsRequired": 2,
+      "recommendedGasBufferNative": "0.01",
+      "nativeToken": {
+        "type": "native",
+        "symbol": "ETH"
+      },
+      "contracts": {
+        "registry": "",
+        "verifier": "",
+        "rewardDistributor": "",
+        "token": ""
+      },
+      "discoveryDefaults": {
+        "writableRoot": "./shared-root",
+        "resultRoot": "./shared-root"
+      },
+      "payments": {
+        "defaultTokenId": "ethereum-eth",
+        "supportedTokens": [
+          {
+            "id": "ethereum-eth",
+            "symbol": "ETH",
+            "kind": "native",
+            "decimals": 18,
+            "adapter": "native",
+            "enabled": false,
+            "reasonDisabled": "Ethereum mainnet support is not live yet."
+          },
+          {
+            "id": "ethereum-usdc",
+            "symbol": "USDC",
+            "kind": "erc20",
+            "address": "",
+            "decimals": 6,
+            "adapter": "erc20",
+            "enabled": false,
+            "reasonDisabled": "Ethereum mainnet support is not live yet."
+          },
+          {
+            "id": "ethereum-usdt",
+            "symbol": "USDT",
+            "kind": "erc20",
+            "address": "",
+            "decimals": 6,
+            "adapter": "erc20",
+            "enabled": false,
+            "reasonDisabled": "Ethereum mainnet support is not live yet."
+          }
+        ]
+      },
+      "fees": {
+        "minimumPremiumByJobType": {
+          "Simple": "0.001",
+          "General": "0.003",
+          "Collective": "0.007"
+        }
+      },
+      "releaseLinks": {
+        "app": "https://github.com/sinmb79/koinara-app/releases",
+        "node": "https://github.com/sinmb79/Koinara-node/releases",
+        "protocol": "https://github.com/sinmb79/koinara/releases"
+      }
     },
-    {
-      "id": "koin",
-      "symbol": "KOIN",
-      "kind": "erc20",
-      "address": "",
-      "decimals": 18,
-      "adapter": "koin",
+    "base-mainnet": {
+      "id": "base-mainnet",
+      "label": "Base Mainnet",
       "enabled": false,
-      "reasonDisabled": "KOIN conversion flow is not active in the MVP."
+      "reasonDisabled": "Protocol deployment pending on Base mainnet.",
+      "chainId": 8453,
+      "rpcUrl": "",
+      "backupRpcUrls": [],
+      "explorerBaseUrl": "https://basescan.org",
+      "confirmationsRequired": 2,
+      "recommendedGasBufferNative": "0.01",
+      "nativeToken": {
+        "type": "native",
+        "symbol": "ETH"
+      },
+      "contracts": {
+        "registry": "",
+        "verifier": "",
+        "rewardDistributor": "",
+        "token": ""
+      },
+      "discoveryDefaults": {
+        "writableRoot": "./shared-root",
+        "resultRoot": "./shared-root"
+      },
+      "payments": {
+        "defaultTokenId": "base-eth",
+        "supportedTokens": [
+          {
+            "id": "base-eth",
+            "symbol": "ETH",
+            "kind": "native",
+            "decimals": 18,
+            "adapter": "native",
+            "enabled": false,
+            "reasonDisabled": "Base mainnet support is not live yet."
+          },
+          {
+            "id": "base-usdc",
+            "symbol": "USDC",
+            "kind": "erc20",
+            "address": "",
+            "decimals": 6,
+            "adapter": "erc20",
+            "enabled": false,
+            "reasonDisabled": "Base mainnet support is not live yet."
+          }
+        ]
+      },
+      "fees": {
+        "minimumPremiumByJobType": {
+          "Simple": "0.001",
+          "General": "0.003",
+          "Collective": "0.007"
+        }
+      },
+      "releaseLinks": {
+        "app": "https://github.com/sinmb79/koinara-app/releases",
+        "node": "https://github.com/sinmb79/Koinara-node/releases",
+        "protocol": "https://github.com/sinmb79/koinara/releases"
+      }
     }
-  ],
-  "discoveryDefaults": {
-    "writableRoot": "./shared-root",
-    "resultRoot": "./shared-root"
-  },
-  "fees": {
-    "minimumPremiumByJobType": {
-      "Simple": "0.01",
-      "General": "0.03",
-      "Collective": "0.07"
-    }
-  },
-  "releaseLinks": {
-    "app": "https://github.com/sinmb79/koinara-app/releases",
-    "node": "https://github.com/sinmb79/Koinara-node/releases",
-    "protocol": "https://github.com/sinmb79/koinara/releases"
   }
 }

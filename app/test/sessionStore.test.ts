@@ -8,9 +8,11 @@ describe("session store", () => {
 
   it("upserts and reloads sessions", () => {
     upsertSession({
+      networkId: "worldland-testnet",
+      networkLabel: "Worldland Testnet",
       requestHash: "0xreq",
       schemaHash: "0xschema",
-      selectedToken: "wlc",
+      selectedToken: "worldland-wlc",
       deadline: 1,
       discoveryRoot: "root",
       lastKnownState: "Open",

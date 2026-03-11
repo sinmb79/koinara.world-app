@@ -13,7 +13,9 @@ export function ProgressTracker({ session }: { session: AppJobSession }) {
     <div className="progress-card">
       <div className="progress-header">
         <strong>Job #{session.jobId ?? "pending"}</strong>
-        <span>{session.lastKnownState}</span>
+        <span>
+          {session.networkLabel} · {session.lastKnownState}
+        </span>
       </div>
       <div className="stage-row">
         {stages.map((stage, index) => (

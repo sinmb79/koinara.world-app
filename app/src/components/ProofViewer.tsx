@@ -40,7 +40,7 @@ export function ProofViewer({ proof }: { proof?: ProofSnapshot }) {
       </dl>
       {proof.explorerUrl ? (
         <a href={proof.explorerUrl} target="_blank" rel="noreferrer">
-          Open in Worldland explorer
+          Open in explorer
         </a>
       ) : null}
     </section>

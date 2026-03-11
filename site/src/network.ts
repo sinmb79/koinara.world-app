@@ -1,6 +1,6 @@
 import { Contract, JsonRpcProvider, formatEther } from "ethers";
-import { registryAbi, rewardDistributorAbi, verifierAbi, type ChainConfig } from "@koinara/shared";
-import { getDefaultChainConfig } from "@koinara/shared/config/defaultConfigs";
+import { registryAbi, rewardDistributorAbi, verifierAbi, type ChainConfig, type ChainProfileConfig } from "@koinara/shared";
+import { getChainProfileConfig } from "@koinara/shared/config/defaultConfigs";
 
 export interface ActivityItem {
   id: string;
@@ -11,6 +11,8 @@ export interface ActivityItem {
 }
 
 export interface NetworkDashboardData {
+  networkId: string;
+  networkLabel: string;
   status: "ready" | "empty";
   reason?: string;
   jobsToday: number;
@@ -20,22 +22,22 @@ export interface NetworkDashboardData {
   activity: ActivityItem[];
 }
 
-export function getSiteChainConfig(): ChainConfig {
+export function getSiteChainProfileConfig(): ChainProfileConfig {
   const profile = (import.meta.env.VITE_CHAIN_PROFILE ?? "testnet") as "testnet" | "mainnet";
-  return getDefaultChainConfig(profile);
+  return getChainProfileConfig(profile);
+}
+
+export function getSiteNetworkConfigs(): ChainConfig[] {
+  return Object.values(getSiteChainProfileConfig().networks);
 }
 
 export async function loadNetworkDashboard(config: ChainConfig): Promise<NetworkDashboardData> {
+  if (!config.enabled) {
+    return buildEmptyDashboard(config, config.reasonDisabled ?? "This network is not publishing a live dashboard yet.");
+  }
+
   if (!config.rpcUrl || !config.contracts.registry || !config.contracts.rewardDistributor || !config.contracts.verifier) {
-    return {
-      status: "empty",
-      reason: "Add RPC and contract addresses to config/chain.*.json to enable the live dashboard.",
-      jobsToday: 0,
-      uniqueParticipants24h: 0,
-      koinMinted: "0",
-      walletGraph: [],
-      activity: []
-    };
+    return buildEmptyDashboard(config, "Add RPC and contract addresses to config/chain.*.json to enable the live dashboard.");
   }
 
   const provider = new JsonRpcProvider(config.rpcUrl, config.chainId || undefined);
@@ -52,10 +54,11 @@ export async function loadNetworkDashboard(config: ChainConfig): Promise<Network
     rewardDistributor.queryFilter(rewardDistributor.filters.RewardsDistributed(), fromBlock, currentBlock)
   ]);
 
-  return reduceNetworkLogs(createdLogs, responseLogs, proofLogs, rewardLogs);
+  return reduceNetworkLogs(config, createdLogs, responseLogs, proofLogs, rewardLogs);
 }
 
 export function reduceNetworkLogs(
+  config: ChainConfig,
   createdLogs: Array<{ args?: Record<string, unknown>; blockNumber: number }>,
   responseLogs: Array<{ args?: Record<string, unknown>; blockNumber: number }>,
   proofLogs: Array<{ args?: Record<string, unknown>; blockNumber: number }>,
@@ -127,11 +130,27 @@ export function reduceNetworkLogs(
   activity.sort((left, right) => right.blockNumber - left.blockNumber);
 
   return {
+    networkId: config.id,
+    networkLabel: config.label,
     status: "ready",
     jobsToday: createdLogs.length,
     uniqueParticipants24h: participants.size,
     koinMinted: formatEther(koinMinted),
     walletGraph: Array.from(walletGraph),
     activity: activity.slice(0, 10)
+  };
+}
+
+function buildEmptyDashboard(config: ChainConfig, reason: string): NetworkDashboardData {
+  return {
+    networkId: config.id,
+    networkLabel: config.label,
+    status: "empty",
+    reason,
+    jobsToday: 0,
+    uniqueParticipants24h: 0,
+    koinMinted: "0",
+    walletGraph: [],
+    activity: []
   };
 }

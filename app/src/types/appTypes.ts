@@ -1,6 +1,8 @@
-import type { JobStateName, ProofSnapshot, SupportedTokenId } from "@koinara/shared";
+import type { JobStateName, NetworkId, ProofSnapshot, SupportedTokenId } from "@koinara/shared";
 
 export interface AppJobSession {
+  networkId: NetworkId;
+  networkLabel: string;
   requestHash: string;
   schemaHash: string;
   createdTxHash?: string;

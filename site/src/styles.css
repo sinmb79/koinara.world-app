@@ -65,7 +65,8 @@ body {
 .site-stack,
 .stats-grid,
 .docs-grid,
-.wallet-cloud {
+.wallet-cloud,
+.site-network-grid {
   display: grid;
   gap: 1rem;
 }
@@ -138,6 +139,32 @@ body {
 
 .docs-grid {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.site-network-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.site-network-card,
+.site-network-card-button {
+  display: grid;
+  gap: 0.35rem;
+  text-align: left;
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid var(--site-line);
+  background: white;
+}
+
+.site-network-card-button {
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.site-network-card-button.selected {
+  border-color: var(--site-accent);
+  box-shadow: inset 0 0 0 1px var(--site-accent);
 }
 
 .doc-card {

@@ -12,6 +12,7 @@ export function HistoryPage() {
         <thead>
           <tr>
             <th>Job</th>
+            <th>Network</th>
             <th>State</th>
             <th>Token</th>
             <th>Updated</th>
@@ -21,8 +22,9 @@ export function HistoryPage() {
           {sessions.map((session) => (
             <tr key={session.requestHash}>
               <td>{session.jobId ?? "pending"}</td>
+              <td>{session.networkLabel}</td>
               <td>{session.lastKnownState}</td>
-              <td>{session.selectedToken.toUpperCase()}</td>
+              <td>{session.selectedToken}</td>
               <td>{new Date(session.updatedAt).toLocaleString()}</td>
             </tr>
           ))}

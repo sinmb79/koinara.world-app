@@ -14,9 +14,11 @@ describe("useJobPolling", () => {
     function Harness() {
       const [sessions] = useState([
         {
+          networkId: "worldland-testnet",
+          networkLabel: "Worldland Testnet",
           requestHash: "0x1",
           schemaHash: "0x2",
-          selectedToken: "wlc" as const,
+          selectedToken: "worldland-wlc",
           deadline: Math.floor(Date.now() / 1000) + 60,
           discoveryRoot: "root",
           lastKnownState: "Open" as const,

@@ -1,6 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import type { JobTypeName, SupportedTokenId } from "@koinara/shared";
-import { getDefaultChainConfig } from "@koinara/shared/config/defaultConfigs";
+import type {
+  ChainConfig,
+  ChainProfileConfig,
+  JobTypeName,
+  NetworkId,
+  SupportedTokenId
+} from "@koinara/shared";
+import { getChainProfileConfig } from "@koinara/shared/config/defaultConfigs";
 import { createChainClient, jobTypeToNumber } from "../chain/client";
 import { useJobPolling } from "../hooks/useJobPolling";
 import {
@@ -9,7 +15,7 @@ import {
   defaultDeadlineForJobType,
   recommendJobType
 } from "../orchestrator/submitJob";
-import { buildPaymentQuote } from "../payment/adapters";
+import { buildPaymentQuote, createPaymentAggregator } from "../payment/adapters";
 import { getRuntimeBridge } from "../storage/runtimeBridge";
 import { classifyAppError } from "./errors";
 import { loadSessions, replaceSessions, upsertSession } from "./sessionStore";
@@ -24,10 +30,14 @@ interface SubmitInput {
 }
 
 interface AppContextValue {
-  chainConfig: ReturnType<typeof getDefaultChainConfig>;
+  chainProfileConfig: ChainProfileConfig;
+  chainConfig: ChainConfig;
+  networks: ChainConfig[];
+  selectedNetworkId: NetworkId;
   sessions: AppJobSession[];
   wallet: WalletState;
   lastError?: AppErrorDescriptor;
+  selectNetwork(networkId: NetworkId): void;
   submitJob(input: SubmitInput): Promise<void>;
   chooseDiscoveryRoot(): Promise<string | null>;
   connectWalletConnect(): Promise<void>;
@@ -35,8 +45,8 @@ interface AppContextValue {
   unlockBuiltInWallet(passphrase: string): Promise<void>;
   lockBuiltInWallet(): Promise<void>;
   deleteBuiltInWallet(): Promise<void>;
-  markExpired(jobId: number): Promise<void>;
-  claimRefund(jobId: number): Promise<void>;
+  markExpired(jobId: number, networkId: NetworkId): Promise<void>;
+  claimRefund(jobId: number, networkId: NetworkId): Promise<void>;
   quoteFor(tokenId: SupportedTokenId, jobType: JobTypeName, gasEstimate?: string): ReturnType<typeof buildPaymentQuote>;
   estimateGas(jobType: JobTypeName, requestHash: string, schemaHash: string, deadline: number): Promise<string | undefined>;
 }
@@ -45,10 +55,23 @@ const AppContext = createContext<AppContextValue | null>(null);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const profile = (import.meta.env.VITE_CHAIN_PROFILE ?? "testnet") as "testnet" | "mainnet";
-  const chainConfig = useMemo(() => getDefaultChainConfig(profile), [profile]);
-  const chain = useMemo(() => createChainClient(chainConfig), [chainConfig]);
   const runtime = useMemo(() => getRuntimeBridge(), []);
-  const [sessions, setSessions] = useState<AppJobSession[]>(() => loadSessions());
+  const chainProfileConfig = useMemo(() => getChainProfileConfig(profile), [profile]);
+  const networks = useMemo(() => Object.values(chainProfileConfig.networks), [chainProfileConfig]);
+  const [selectedNetworkId, setSelectedNetworkId] = useState<NetworkId>(chainProfileConfig.defaultNetwork);
+  const chainConfig = useMemo(
+    () => chainProfileConfig.networks[selectedNetworkId] ?? chainProfileConfig.networks[chainProfileConfig.defaultNetwork],
+    [chainProfileConfig, selectedNetworkId]
+  );
+  const chainClients = useMemo(
+    () =>
+      Object.fromEntries(networks.map((network) => [network.id, createChainClient(network)])) as Record<
+        NetworkId,
+        ReturnType<typeof createChainClient>
+      >,
+    [networks]
+  );
+  const [sessions, setSessions] = useState<AppJobSession[]>(() => hydrateSessions(loadSessions(), chainProfileConfig));
   const [wallet, setWallet] = useState<WalletState>({
     mode: "none",
     builtInExists: false,
@@ -56,6 +79,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   });
   const [walletConnectProvider, setWalletConnectProvider] = useState<unknown>();
   const [lastError, setLastError] = useState<AppErrorDescriptor>();
+
+  useEffect(() => {
+    if (!chainProfileConfig.networks[selectedNetworkId]) {
+      setSelectedNetworkId(chainProfileConfig.defaultNetwork);
+    }
+
+    const migrated = hydrateSessions(loadSessions(), chainProfileConfig);
+    setSessions(migrated);
+    replaceSessions(migrated);
+  }, [chainProfileConfig, selectedNetworkId]);
 
   useEffect(() => {
     void runtime.walletStatus().then((status) => {
@@ -70,12 +103,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   useJobPolling({
     sessions,
-    enabled: chain.isConfigured(),
+    enabled: Object.values(chainClients).some((client) => client.isConfigured()),
     poller: async (session) => {
       if (!session.jobId) {
         return;
       }
-      const poll = await chain.pollJob(session.jobId);
+
+      const client = chainClients[session.networkId];
+      if (!client || !client.isConfigured()) {
+        return;
+      }
+
+      const poll = await client.pollJob(session.jobId);
       let next: AppJobSession = {
         ...session,
         lastKnownState: poll.state,
@@ -84,6 +123,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         responseHash: poll.responseHash,
         proof: poll.proof ?? session.proof
       };
+
       if (poll.responseHash) {
         const receipt = await runtime.readReceipt(session.discoveryRoot, session.jobId, poll.responseHash);
         const result = await runtime.readResult(session.discoveryRoot, session.jobId, poll.responseHash);
@@ -92,9 +132,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           result: result ?? receipt?.body.output ?? next.result
         };
       }
-      const updated = sessions.map((entry) => (entry.requestHash === session.requestHash ? next : entry));
-      setSessions(updated);
-      replaceSessions(updated);
+
+      setSessions((current) => {
+        const updated = current.map((entry) => (entry.requestHash === session.requestHash ? next : entry));
+        replaceSessions(updated);
+        return updated;
+      });
     }
   });
 
@@ -105,15 +148,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         throw new Error("Collective submission is coming soon. Submit Simple or General jobs in the MVP.");
       }
 
+      if (!chainConfig.enabled) {
+        throw new Error(chainConfig.reasonDisabled ?? "This network is not accepting submissions yet.");
+      }
+
+      const quote = buildPaymentQuote(chainConfig, input.tokenId, recommended);
+      if (!quote.available) {
+        throw new Error(quote.reasonDisabled ?? "The selected payment token is not available.");
+      }
+
       const manifest = buildManifestFromPrompt({
         prompt: input.prompt,
         contentType: input.contentType,
-        metadata: { source: "desktop-app" }
+        metadata: { source: "desktop-app", networkId: chainConfig.id }
       });
       const { requestHash, schemaHash } = buildSubmissionHashes(manifest);
       const deadline = defaultDeadlineForJobType(recommended);
-      const premiumRewardWei = chain.estimatePremiumWei(recommended);
+      const premiumRewardWei = chainClients[chainConfig.id].estimatePremiumWei(recommended);
       const draft: AppJobSession = {
+        networkId: chainConfig.id,
+        networkLabel: chainConfig.label,
         requestHash,
         schemaHash,
         deadline,
@@ -138,7 +192,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           premiumRewardWei
         });
       } else if (wallet.mode === "walletconnect" && walletConnectProvider) {
-        result = await chain.createJobWithWalletConnect({
+        result = await chainClients[chainConfig.id].createJobWithWalletConnect({
           eip1193Provider: walletConnectProvider,
           requestHash,
           schemaHash,
@@ -169,6 +223,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return runtime.selectDiscoveryRoot();
   }
 
+  function selectNetwork(networkId: NetworkId): void {
+    setSelectedNetworkId(networkId);
+    setLastError(undefined);
+    setWalletConnectProvider(undefined);
+
+    if (wallet.mode === "walletconnect") {
+      void runtime.walletStatus().then((status) => {
+        setWallet({
+          mode: status.unlocked ? "built-in" : "none",
+          address: status.unlocked ? status.address : undefined,
+          builtInExists: status.exists,
+          builtInUnlocked: status.unlocked,
+          statusMessage: "Reconnect WalletConnect for the selected network."
+        });
+      });
+    }
+  }
+
   async function handleConnectWalletConnect(): Promise<void> {
     try {
       const connection = await connectWalletConnect(chainConfig);
@@ -178,7 +250,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         address: connection.address,
         builtInExists: wallet.builtInExists,
         builtInUnlocked: wallet.builtInUnlocked,
-        statusMessage: "WalletConnect v2 connected."
+        statusMessage: `WalletConnect v2 connected to ${chainConfig.label}.`
       });
       setLastError(undefined);
     } catch (error) {
@@ -209,7 +281,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         address: response.address,
         builtInExists: true,
         builtInUnlocked: true,
-        statusMessage: "Built-in wallet unlocked in memory."
+        statusMessage: `Built-in wallet unlocked for ${chainConfig.label}.`
       });
     } catch (error) {
       setLastError(classifyAppError(error));
@@ -236,55 +308,71 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }
 
-  async function markExpired(jobId: number): Promise<void> {
+  async function markExpired(jobId: number, networkId: NetworkId): Promise<void> {
+    const targetConfig = resolveNetworkConfig(chainProfileConfig, networkId);
+    const client = chainClients[targetConfig.id];
+
     try {
       if (wallet.mode === "built-in") {
-        await runtime.markExpiredBuiltIn({ chain: chainConfig, jobId });
+        await runtime.markExpiredBuiltIn({ chain: targetConfig, jobId });
       } else if (wallet.mode === "walletconnect" && walletConnectProvider) {
-        await chain.markExpiredWithWalletConnect(jobId, walletConnectProvider);
+        await client.markExpiredWithWalletConnect(jobId, walletConnectProvider);
       } else {
         throw new Error("Connect a wallet before marking a job expired.");
       }
 
-      const nextSessions = sessions.map((entry) =>
-        entry.jobId === jobId
-          ? ({ ...entry, lastKnownState: "Expired", updatedAt: new Date().toISOString() } as AppJobSession)
-          : entry
-      );
-      setSessions(nextSessions);
-      replaceSessions(nextSessions);
+      setSessions((current) => {
+        const nextSessions = current.map((entry) =>
+          entry.jobId === jobId && entry.networkId === networkId
+            ? ({ ...entry, lastKnownState: "Expired", updatedAt: new Date().toISOString() } as AppJobSession)
+            : entry
+        );
+        replaceSessions(nextSessions);
+        return nextSessions;
+      });
     } catch (error) {
       setLastError(classifyAppError(error));
     }
   }
 
-  async function claimRefund(jobId: number): Promise<void> {
+  async function claimRefund(jobId: number, networkId: NetworkId): Promise<void> {
+    const targetConfig = resolveNetworkConfig(chainProfileConfig, networkId);
+    const client = chainClients[targetConfig.id];
+
     try {
       if (wallet.mode === "built-in") {
-        await runtime.claimRefundBuiltIn({ chain: chainConfig, jobId });
+        await runtime.claimRefundBuiltIn({ chain: targetConfig, jobId });
       } else if (wallet.mode === "walletconnect" && walletConnectProvider) {
-        await chain.claimRefundWithWalletConnect(jobId, walletConnectProvider);
+        await client.claimRefundWithWalletConnect(jobId, walletConnectProvider);
       } else {
         throw new Error("Connect a wallet before claiming a refund.");
       }
 
-      const nextSessions = sessions.map((entry) =>
-        entry.jobId === jobId
-          ? ({ ...entry, lastKnownState: "Expired", updatedAt: new Date().toISOString() } as AppJobSession)
-          : entry
-      );
-      setSessions(nextSessions);
-      replaceSessions(nextSessions);
+      setSessions((current) => {
+        const nextSessions = current.map((entry) =>
+          entry.jobId === jobId && entry.networkId === networkId
+            ? ({ ...entry, lastKnownState: "Expired", updatedAt: new Date().toISOString() } as AppJobSession)
+            : entry
+        );
+        replaceSessions(nextSessions);
+        return nextSessions;
+      });
     } catch (error) {
       setLastError(classifyAppError(error));
     }
   }
 
+  const aggregator = useMemo(() => createPaymentAggregator(chainConfig), [chainConfig]);
+
   const value: AppContextValue = {
+    chainProfileConfig,
     chainConfig,
+    networks,
+    selectedNetworkId,
     sessions,
     wallet,
     lastError,
+    selectNetwork,
     submitJob,
     chooseDiscoveryRoot,
     connectWalletConnect: handleConnectWalletConnect,
@@ -294,7 +382,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     deleteBuiltInWallet,
     markExpired,
     claimRefund,
-    quoteFor: (tokenId, jobType, gasEstimate) => buildPaymentQuote(chainConfig, tokenId, jobType, gasEstimate),
+    quoteFor: (tokenId, jobType, gasEstimate) => aggregator.buildQuote(tokenId, jobType, gasEstimate),
     estimateGas: async (jobType, requestHash, schemaHash, deadline) => {
       try {
         const result = await runtime.estimateCreateJobGas({
@@ -303,7 +391,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           schemaHash,
           deadline,
           jobType: jobTypeToNumber[jobType],
-          premiumRewardWei: chain.estimatePremiumWei(jobType)
+          premiumRewardWei: chainClients[chainConfig.id].estimatePremiumWei(jobType)
         });
         return result.estimatedNative;
       } catch {
@@ -321,4 +409,20 @@ export function useAppContext(): AppContextValue {
     throw new Error("AppContext is not available.");
   }
   return value;
+}
+
+function hydrateSessions(sessions: AppJobSession[], profileConfig: ChainProfileConfig): AppJobSession[] {
+  return sessions.map((session) => {
+    const networkId = profileConfig.networks[session.networkId] ? session.networkId : profileConfig.defaultNetwork;
+    const network = profileConfig.networks[networkId];
+    return {
+      ...session,
+      networkId,
+      networkLabel: session.networkLabel || network.label
+    };
+  });
+}
+
+function resolveNetworkConfig(profileConfig: ChainProfileConfig, networkId: NetworkId): ChainConfig {
+  return profileConfig.networks[networkId] ?? profileConfig.networks[profileConfig.defaultNetwork];
 }

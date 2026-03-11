@@ -1,7 +1,8 @@
-import { getSiteChainConfig } from "../network";
+import { getSiteChainProfileConfig } from "../network";
 
 export function DownloadPage() {
-  const config = getSiteChainConfig();
+  const profile = getSiteChainProfileConfig();
+  const config = profile.networks[profile.defaultNetwork];
 
   return (
     <div className="site-stack">

@@ -15,7 +15,9 @@ export function ResultPage() {
         <section key={session.requestHash} className="panel">
           <div className="panel-header">
             <h2>Job #{session.jobId ?? "pending"}</h2>
-            <span>{session.lastKnownState}</span>
+            <span>
+              {session.networkLabel} · {session.lastKnownState}
+            </span>
           </div>
           <pre className="result-box">{JSON.stringify(session.result ?? "Pending receipt", null, 2)}</pre>
           <ProofViewer proof={session.proof} />

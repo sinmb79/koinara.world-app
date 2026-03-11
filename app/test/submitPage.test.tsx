@@ -18,6 +18,21 @@ describe("submit page", () => {
     fireEvent.change(textarea, { target: { value: "A".repeat(2600) } });
 
     expect(screen.getAllByText(/collective/i)[0]).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /submit to koinara/i })).toBeDisabled();
+    expect(screen.getAllByRole("button", { name: /submit to koinara/i })[0]).toBeDisabled();
+  });
+
+  it("keeps staged networks disabled", async () => {
+    render(
+      <MemoryRouter>
+        <AppProvider>
+          <SubmitPage />
+        </AppProvider>
+      </MemoryRouter>
+    );
+
+    fireEvent.click(screen.getAllByLabelText(/ethereum sepolia/i)[0]!);
+
+    expect(screen.getAllByText(/protocol deployment pending on ethereum testnet/i)[0]).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /submit to koinara/i })[0]).toBeDisabled();
   });
 });

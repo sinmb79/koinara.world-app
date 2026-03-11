@@ -175,6 +175,7 @@ textarea {
   color: var(--danger);
 }
 
+.network-grid,
 .token-grid,
 .stack {
   display: grid;

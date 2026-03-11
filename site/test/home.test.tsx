@@ -9,6 +9,8 @@ describe("network stats empty state", () => {
       <MemoryRouter>
         <NetworkStats
           data={{
+            networkId: "worldland-testnet",
+            networkLabel: "Worldland Testnet",
             status: "empty",
             reason: "Add RPC and contract addresses to config/chain.*.json to enable the live dashboard.",
             jobsToday: 0,

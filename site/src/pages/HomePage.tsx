@@ -3,7 +3,7 @@ import { NetworkStats } from "../components/NetworkStats";
 import { useNetworkDashboard } from "../hooks/useNetworkDashboard";
 
 export function HomePage() {
-  const data = useNetworkDashboard();
+  const { data, networks } = useNetworkDashboard();
 
   return (
     <div className="site-stack">
@@ -22,6 +22,21 @@ export function HomePage() {
         </div>
       </section>
       <NetworkStats data={data} />
+      <section className="site-panel">
+        <div className="panel-headline">
+          <h2>Network rollout</h2>
+          <span>{networks.length} profiles in config</span>
+        </div>
+        <div className="site-network-grid">
+          {networks.map((network) => (
+            <article key={network.id} className="site-network-card">
+              <strong>{network.label}</strong>
+              <div>{network.enabled ? "Live profile" : "Planned profile"}</div>
+              <small>{network.enabled ? `Primary token: ${network.payments.defaultTokenId}` : network.reasonDisabled}</small>
+            </article>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

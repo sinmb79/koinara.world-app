@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildProofSnapshot, computeRequestHash, computeResponseHash, computeSchemaHash, hashVectors, reduceJobProgress } from "../src";
-import { getDefaultChainConfig } from "../src/config/defaultConfigs";
+import { getChainProfileConfig, getDefaultChainConfig } from "../src/config/defaultConfigs";
 
 describe("hash parity fixtures", () => {
   it("matches request/schema/response fixtures", () => {
@@ -15,8 +15,16 @@ describe("hash parity fixtures", () => {
 describe("chain config validation", () => {
   it("loads default testnet config", () => {
     const config = getDefaultChainConfig("testnet");
-    expect(config.supportedTokens[0].id).toBe("wlc");
+    expect(config.id).toBe("worldland-testnet");
+    expect(config.payments.supportedTokens[0].id).toBe("worldland-wlc");
     expect(config.fees.minimumPremiumByJobType.General).toBe("0.03");
+  });
+
+  it("loads the network bundle for staged rollouts", () => {
+    const profile = getChainProfileConfig("mainnet");
+    expect(profile.defaultNetwork).toBe("worldland-mainnet");
+    expect(Object.keys(profile.networks)).toContain("ethereum-mainnet");
+    expect(profile.networks["base-mainnet"]?.enabled).toBe(false);
   });
 });
 

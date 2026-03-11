@@ -15,12 +15,12 @@ export function StatusPage() {
             <ProgressTracker session={session} />
             <div className="inline-row">
               {deadlinePassed && session.jobId ? (
-                <button type="button" onClick={() => void markExpired(session.jobId!)}>
+                <button type="button" onClick={() => void markExpired(session.jobId!, session.networkId)}>
                   Mark expired
                 </button>
               ) : null}
               {canRefund && session.jobId ? (
-                <button type="button" onClick={() => void claimRefund(session.jobId!)}>
+                <button type="button" onClick={() => void claimRefund(session.jobId!, session.networkId)}>
                   Claim refund
                 </button>
               ) : null}

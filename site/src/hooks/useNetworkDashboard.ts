@@ -1,8 +1,17 @@
-import { useEffect, useState } from "react";
-import { getSiteChainConfig, loadNetworkDashboard, type NetworkDashboardData } from "../network";
+import { useEffect, useMemo, useState } from "react";
+import { getSiteChainProfileConfig, loadNetworkDashboard, type NetworkDashboardData } from "../network";
 
 export function useNetworkDashboard() {
+  const profileConfig = useMemo(() => getSiteChainProfileConfig(), []);
+  const networks = useMemo(() => Object.values(profileConfig.networks), [profileConfig]);
+  const [selectedNetworkId, setSelectedNetworkId] = useState(profileConfig.defaultNetwork);
+  const selectedNetwork = useMemo(
+    () => profileConfig.networks[selectedNetworkId] ?? profileConfig.networks[profileConfig.defaultNetwork],
+    [profileConfig, selectedNetworkId]
+  );
   const [data, setData] = useState<NetworkDashboardData>({
+    networkId: selectedNetwork.id,
+    networkLabel: selectedNetwork.label,
     status: "empty",
     jobsToday: 0,
     uniqueParticipants24h: 0,
@@ -14,10 +23,9 @@ export function useNetworkDashboard() {
   useEffect(() => {
     let timer: number | undefined;
     let cancelled = false;
-    const config = getSiteChainConfig();
 
     const load = async () => {
-      const next = await loadNetworkDashboard(config);
+      const next = await loadNetworkDashboard(selectedNetwork);
       if (!cancelled) {
         setData(next);
       }
@@ -32,7 +40,12 @@ export function useNetworkDashboard() {
         window.clearTimeout(timer);
       }
     };
-  }, []);
+  }, [selectedNetwork]);
 
-  return data;
+  return {
+    data,
+    networks,
+    selectedNetworkId,
+    setSelectedNetworkId
+  };
 }

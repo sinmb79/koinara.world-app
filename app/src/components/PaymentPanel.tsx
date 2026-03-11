@@ -15,10 +15,11 @@ export function PaymentPanel(props: PaymentPanelProps) {
     <section className="panel">
       <div className="panel-header">
         <h2>Quote</h2>
-        <span className="subtle">Premium + estimated gas only</span>
+        <span className="subtle">{chainConfig.label} payment profile</span>
       </div>
+      <p className="subtle">Premium + estimated gas only. Gas remains payable in {chainConfig.nativeToken.symbol}.</p>
       <div className="token-grid">
-        {chainConfig.supportedTokens.map((token) => {
+        {chainConfig.payments.supportedTokens.map((token) => {
           const quote = quoteFor(token.id, props.jobType, props.gasEstimate);
           return (
             <label key={token.id} className={`token-card ${props.selectedToken === token.id ? "selected" : ""}`}>

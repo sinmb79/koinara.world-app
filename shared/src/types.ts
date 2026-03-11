@@ -9,8 +9,9 @@ export type JobStateName =
   | "Rejected"
   | "Settled"
   | "Expired";
-export type SupportedTokenId = "wlc" | "wl" | "koin";
-export type PaymentAdapterId = "wlc" | "wl" | "koin";
+export type NetworkId = string;
+export type SupportedTokenId = string;
+export type PaymentAdapterId = string;
 export type SupportedTokenKind = "native" | "erc20";
 
 export interface SupportedTokenConfig {
@@ -25,6 +26,10 @@ export interface SupportedTokenConfig {
 }
 
 export interface ChainConfig {
+  id: NetworkId;
+  label: string;
+  enabled: boolean;
+  reasonDisabled?: string;
   chainId: number;
   rpcUrl: string;
   backupRpcUrls: string[];
@@ -42,10 +47,13 @@ export interface ChainConfig {
     rewardDistributor: string;
     token: string;
   };
-  supportedTokens: SupportedTokenConfig[];
   discoveryDefaults: {
     writableRoot: string;
     resultRoot: string;
+  };
+  payments: {
+    defaultTokenId: SupportedTokenId;
+    supportedTokens: SupportedTokenConfig[];
   };
   fees: {
     minimumPremiumByJobType: Record<JobTypeName, string>;
@@ -55,6 +63,11 @@ export interface ChainConfig {
     node: string;
     protocol: string;
   };
+}
+
+export interface ChainProfileConfig {
+  defaultNetwork: NetworkId;
+  networks: Record<NetworkId, ChainConfig>;
 }
 
 export interface JobManifest {
