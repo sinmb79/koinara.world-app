@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { NetworkStats } from "../components/NetworkStats";
+import { ProcessShowcase } from "../components/ProcessShowcase";
 import { useNetworkDashboard } from "../hooks/useNetworkDashboard";
 
 export function HomePage() {
@@ -10,7 +11,7 @@ export function HomePage() {
       <section className="site-hero">
         <div>
           <p className="site-eyebrow">Koinara Network</p>
-          <h1>Submit inference jobs, verify results, and inspect proof without any hosted backend.</h1>
+          <h1>Turn inference into a swarm: submit jobs, split work across nodes, and inspect proof without a hosted backend.</h1>
           <div className="site-cta-row">
             <Link to="/download" className="site-link-button">
               Download App
@@ -21,6 +22,7 @@ export function HomePage() {
           </div>
         </div>
       </section>
+      <ProcessShowcase />
       <NetworkStats data={data} />
       <section className="site-panel">
         <div className="panel-headline">
