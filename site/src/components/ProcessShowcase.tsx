@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import koiCrystal from "../assets/koi-crystal.webp";
+import koiStates from "../assets/koi-states.webp";
 
 type DemoJobType = "Simple" | "General" | "Collective";
 
@@ -140,6 +142,23 @@ export function ProcessShowcase() {
           ) : (
             <LinearFlow jobType={jobType} activeStageId={selectedStageId} />
           )}
+
+          <div className="mascot-strip">
+            <article className="mascot-card spotlight">
+              <img src={koiCrystal} alt="KOI mascot energized with token crystals" />
+              <div>
+                <strong>Creator energy</strong>
+                <small>The request starts with the user opening new work into the network.</small>
+              </div>
+            </article>
+            <article className="mascot-card states">
+              <img src={koiStates} alt="KOI mascot shown in request, verification, reward, and error states" />
+              <div>
+                <strong>State reactions</strong>
+                <small>Request, inspect, confirm, reward, and rejection can all be shown with the same character system.</small>
+              </div>
+            </article>
+          </div>
 
           <div className="process-footnote">
             <strong>BitTorrent-like goal:</strong> people should feel that they are opening a job into a living swarm where
