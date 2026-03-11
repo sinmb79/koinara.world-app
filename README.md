@@ -62,6 +62,7 @@ GitHub Actions included in this repo:
 - `Deploy Site to Cloudflare Pages`: deploys `site/` on push to `main` if Cloudflare secrets are configured
 
 Deployment setup details live in [docs/deployment.md](./docs/deployment.md).
+Home-PC release testing steps live in [docs/home-test-checklist.md](./docs/home-test-checklist.md).
 
 ## Static Hosting
 
