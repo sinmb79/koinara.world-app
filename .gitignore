@@ -10,3 +10,5 @@ site/dist/
 shared/dist/
 app/.wallet-vault.json
 app/.env.local
+.vercel/
+.wrangler/
