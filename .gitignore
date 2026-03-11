@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+.vite/
+.DS_Store
+*.log
+app/dist-electron/
+app/dist-renderer/
+site/dist/
+shared/dist/
+app/.wallet-vault.json
+app/.env.local

@@ -1,0 +1,64 @@
+{
+  "chainId": 0,
+  "rpcUrl": "",
+  "backupRpcUrls": [],
+  "explorerBaseUrl": "",
+  "confirmationsRequired": 2,
+  "recommendedGasBufferNative": "0.10",
+  "nativeToken": {
+    "type": "native",
+    "symbol": "WLC"
+  },
+  "contracts": {
+    "registry": "",
+    "verifier": "",
+    "rewardDistributor": "",
+    "token": ""
+  },
+  "supportedTokens": [
+    {
+      "id": "wlc",
+      "symbol": "WLC",
+      "kind": "native",
+      "decimals": 18,
+      "adapter": "wlc",
+      "enabled": true
+    },
+    {
+      "id": "wl",
+      "symbol": "WL",
+      "kind": "erc20",
+      "address": "",
+      "decimals": 18,
+      "adapter": "wl",
+      "enabled": false,
+      "reasonDisabled": "WL conversion flow is not active in the MVP."
+    },
+    {
+      "id": "koin",
+      "symbol": "KOIN",
+      "kind": "erc20",
+      "address": "",
+      "decimals": 18,
+      "adapter": "koin",
+      "enabled": false,
+      "reasonDisabled": "KOIN conversion flow is not active in the MVP."
+    }
+  ],
+  "discoveryDefaults": {
+    "writableRoot": "./shared-root",
+    "resultRoot": "./shared-root"
+  },
+  "fees": {
+    "minimumPremiumByJobType": {
+      "Simple": "0.01",
+      "General": "0.03",
+      "Collective": "0.07"
+    }
+  },
+  "releaseLinks": {
+    "app": "https://github.com/sinmb79/koinara-app/releases",
+    "node": "https://github.com/sinmb79/Koinara-node/releases",
+    "protocol": "https://github.com/sinmb79/koinara/releases"
+  }
+}

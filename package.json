@@ -1,0 +1,33 @@
+{
+  "name": "koinara-app",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "shared",
+    "app",
+    "site"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace shared && npm run build --workspace app && npm run build --workspace site",
+    "test": "npm run test --workspace shared && npm run test --workspace app && npm run test --workspace site",
+    "typecheck": "npm run build --workspace shared && npm run typecheck --workspace app && npm run typecheck --workspace site"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^22.13.10",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.4.1",
+    "electron": "^30.5.1",
+    "ethers": "^6.15.0",
+    "jsdom": "^26.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.0",
+    "typescript": "^5.8.2",
+    "vite": "^5.4.14",
+    "vitest": "^2.1.8"
+  }
+}

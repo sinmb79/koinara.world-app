@@ -1,0 +1,262 @@
+:root {
+  color-scheme: light;
+  --bg: #f4efe2;
+  --panel: #fff9ef;
+  --ink: #13212a;
+  --line: #d3c4ab;
+  --accent: #0f6a7b;
+  --accent-soft: #d8eef2;
+  --warning: #b0561a;
+  --danger: #8c2f24;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(15, 106, 123, 0.12), transparent 30%),
+    linear-gradient(180deg, #f8f1e2 0%, #efe5d1 100%);
+  color: var(--ink);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: white;
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+}
+
+.shell {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.hero,
+.nav,
+.panel,
+.progress-card,
+.status-card {
+  border: 1px solid rgba(19, 33, 42, 0.08);
+  box-shadow: 0 22px 60px rgba(19, 33, 42, 0.07);
+}
+
+.hero,
+.nav,
+.page-grid,
+.inline-row,
+.panel-header,
+.wallet-grid,
+.stage-row,
+.progress-header {
+  display: flex;
+  gap: 1rem;
+}
+
+.hero {
+  justify-content: space-between;
+  align-items: end;
+  background: linear-gradient(135deg, #102931, #0f6a7b);
+  color: white;
+  padding: 2rem;
+  border-radius: 32px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.8rem;
+  opacity: 0.74;
+}
+
+.status-card,
+.panel,
+.progress-card {
+  background: var(--panel);
+  border-radius: 24px;
+  padding: 1.2rem;
+}
+
+.nav {
+  margin: 1rem 0 1.5rem;
+  padding: 0.8rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+}
+
+.nav a {
+  text-decoration: none;
+  color: var(--ink);
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+}
+
+.nav a.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.page-grid {
+  align-items: start;
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.9fr);
+}
+
+.field {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.panel-header {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge {
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.badge-simple {
+  background: #daeecf;
+}
+
+.badge-general {
+  background: #f0e1b8;
+}
+
+.badge-collective {
+  background: #f8d0c6;
+}
+
+.info-banner,
+.error-banner {
+  margin-top: 1rem;
+  border-radius: 18px;
+  padding: 0.85rem 1rem;
+}
+
+.info-banner {
+  background: #fff0cf;
+  color: var(--warning);
+}
+
+.error-banner {
+  background: #f8d6d1;
+  color: var(--danger);
+}
+
+.token-grid,
+.stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.token-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: white;
+}
+
+.token-card.selected {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.stage-chip {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  background: white;
+}
+
+.stage-chip.done {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.detail-grid dt {
+  font-size: 0.85rem;
+  color: rgba(19, 33, 42, 0.65);
+}
+
+.detail-grid dd {
+  margin: 0.2rem 0 0;
+  word-break: break-all;
+}
+
+.result-box {
+  white-space: pre-wrap;
+  background: white;
+  border-radius: 18px;
+  padding: 1rem;
+  overflow: auto;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.history-table th,
+.history-table td {
+  padding: 0.7rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(19, 33, 42, 0.08);
+}
+
+.subtle {
+  opacity: 0.7;
+}
+
+@media (max-width: 960px) {
+  .shell {
+    padding: 1rem;
+  }
+
+  .hero,
+  .page-grid,
+  .inline-row,
+  .wallet-grid {
+    display: grid;
+  }
+}
