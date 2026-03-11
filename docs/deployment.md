@@ -90,3 +90,19 @@ Verify these before announcing the site:
 - refresh on `/download`, `/docs`, and `/network` does not 404
 - empty state messaging appears if RPC or contract addresses are missing
 - release links point to the intended GitHub repositories
+
+## koinara.world
+
+Recommended production setup for `koinara.world`:
+
+1. Deploy `site/` to Vercel or Cloudflare Pages
+2. Attach the apex domain `koinara.world`
+3. Attach `www.koinara.world`
+4. Redirect one hostname to the other and keep one canonical public URL
+
+This repository already ships:
+
+- canonical URL metadata for `https://koinara.world/`
+- `robots.txt`
+- `sitemap.xml`
+- SPA fallback routing

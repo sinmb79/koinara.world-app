@@ -1,0 +1,9 @@
+{
+  "name": "Koinara",
+  "short_name": "Koinara",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbf7f0",
+  "theme_color": "#1d262f",
+  "description": "Official Koinara site for downloads, docs, and live network status."
+}

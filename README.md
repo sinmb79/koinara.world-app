@@ -70,3 +70,4 @@ The site is built from the repo root and outputs static files under `site/dist`.
 - Vercel config: [`vercel.json`](./vercel.json)
 - Cloudflare Pages config: [`wrangler.toml`](./wrangler.toml)
 - SPA fallback for Cloudflare Pages: [`site/public/_redirects`](./site/public/_redirects)
+- Domain metadata and SEO files: [`site/public/robots.txt`](./site/public/robots.txt), [`site/public/sitemap.xml`](./site/public/sitemap.xml), [`site/public/site.webmanifest`](./site/public/site.webmanifest)
