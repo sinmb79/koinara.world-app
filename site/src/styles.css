@@ -186,11 +186,11 @@ body {
 }
 
 .process-grid,
-.stage-tab-row,
 .artifact-strip,
-.lane-grid,
-.collective-grid,
-.sub-lane-grid,
+.flow-chain,
+.dag-cluster,
+.dag-branches,
+.route-list,
 .process-actions {
   display: grid;
   gap: 1rem;
@@ -201,35 +201,94 @@ body {
   margin-top: 1rem;
 }
 
-.process-input-card,
+.composer-card,
 .process-stage-card,
 .artifact-card,
-.lane-card,
+.flow-card,
 .sub-lane-card,
-.stage-detail-card {
+.stage-detail-card,
+.composer-surface,
+.composer-meta {
   border-radius: 20px;
   border: 1px solid var(--site-line);
   background: white;
 }
 
-.process-input-card,
+.composer-card,
 .process-stage-card {
   padding: 1.1rem;
 }
 
-.process-field {
-  display: grid;
-  gap: 0.5rem;
+.composer-surface {
+  padding: 1rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 242, 233, 0.95)),
+    radial-gradient(circle at top left, rgba(185, 76, 35, 0.08), transparent 32%);
 }
 
-.process-field textarea {
+.composer-surface textarea {
   width: 100%;
-  border: 1px solid var(--site-line);
-  border-radius: 18px;
-  padding: 1rem;
+  min-height: 180px;
+  border: 0;
+  outline: none;
+  padding: 0;
   font: inherit;
+  font-size: 1.02rem;
   resize: vertical;
-  background: #fcfaf6;
+  background: transparent;
+  color: var(--site-ink);
+}
+
+.composer-toolbar,
+.composer-meta {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.composer-toolbar {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--site-line);
+}
+
+.composer-pill,
+.route-item {
+  border-radius: 999px;
+  border: 1px solid rgba(16, 25, 36, 0.14);
+  background: white;
+  color: var(--site-ink);
+}
+
+.composer-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.88rem;
+}
+
+.composer-pill.tone-simple {
+  background: #e6f1dd;
+}
+
+.composer-pill.tone-general {
+  background: #f3e5c1;
+}
+
+.composer-pill.tone-collective {
+  background: #f7d6cc;
+}
+
+.composer-send {
+  margin-left: auto;
+  border-radius: 999px;
+  border: 1px solid rgba(16, 25, 36, 0.16);
+  background: var(--site-ink);
+  color: white;
+  font: inherit;
+  padding: 0.6rem 0.95rem;
+  cursor: pointer;
 }
 
 .sample-row {
@@ -239,33 +298,14 @@ body {
   margin-top: 1rem;
 }
 
-.sample-chip,
-.stage-tab {
+.sample-chip {
+  padding: 0.55rem 0.85rem;
   border-radius: 999px;
   border: 1px solid rgba(16, 25, 36, 0.14);
   background: white;
   color: var(--site-ink);
   font: inherit;
   cursor: pointer;
-}
-
-.sample-chip {
-  padding: 0.55rem 0.85rem;
-}
-
-.stage-tab-row {
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-}
-
-.stage-tab {
-  padding: 0.8rem 0.9rem;
-  text-align: left;
-}
-
-.stage-tab.selected {
-  background: rgba(185, 76, 35, 0.12);
-  border-color: rgba(185, 76, 35, 0.3);
-  color: var(--site-accent);
 }
 
 .artifact-strip {
@@ -275,15 +315,17 @@ body {
 
 .artifact-card,
 .stage-detail-card,
-.lane-card,
+.flow-card,
 .sub-lane-card {
   padding: 0.95rem;
 }
 
 .artifact-card span,
-.lane-card small,
+.flow-card small,
 .process-footnote,
-.sub-lane-card {
+.sub-lane-card,
+.composer-meta p,
+.route-item small {
   color: rgba(16, 25, 36, 0.72);
 }
 
@@ -299,20 +341,52 @@ body {
   color: var(--site-accent);
 }
 
-.lane-card.active {
-  background: linear-gradient(135deg, rgba(185, 76, 35, 0.08), rgba(255, 255, 255, 1));
+.route-list {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
 }
 
-.lane-grid {
+.route-item {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.8rem 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+
+.route-item.active {
+  background: rgba(185, 76, 35, 0.12);
+  border-color: rgba(185, 76, 35, 0.3);
+}
+
+.route-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  background: rgba(16, 25, 36, 0.08);
+  font-size: 0.82rem;
+}
+
+.flow-chain {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   margin-top: 1rem;
 }
 
-.collective-grid {
+.flow-card.active,
+.sub-lane-card.active {
+  background: linear-gradient(135deg, rgba(185, 76, 35, 0.12), rgba(255, 255, 255, 1));
+  border-color: rgba(185, 76, 35, 0.25);
+}
+
+.dag-cluster {
   margin-top: 1rem;
 }
 
-.sub-lane-grid {
+.dag-branches {
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
 }
 
@@ -386,7 +460,13 @@ body {
   .panel-headline,
   .sample-row,
   .process-grid,
-  .process-actions {
+  .process-actions,
+  .composer-toolbar,
+  .composer-meta {
     display: grid;
+  }
+
+  .composer-send {
+    margin-left: 0;
   }
 }
