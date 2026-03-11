@@ -14,7 +14,7 @@ describe("payment adapters", () => {
     const config = getDefaultChainConfig("testnet");
     const quote = buildPaymentQuote(config, "worldland-wl", "General");
     expect(quote.available).toBe(false);
-    expect(quote.reasonDisabled).toContain("MVP");
+    expect(quote.reasonDisabled).toContain("not live yet");
   });
 
   it("exposes a network-scoped default token", () => {

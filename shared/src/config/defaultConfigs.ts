@@ -51,9 +51,19 @@ export function validateChainConfig(config: ChainConfig): ChainConfig {
     throw new Error("Chain config must define at least one supported token.");
   }
 
+  if (!config.artifactTransport?.mode) {
+    throw new Error(`Network ${config.id} is missing artifact transport metadata.`);
+  }
+
   for (const token of config.payments.supportedTokens) {
     if (!token.symbol || !token.adapter) {
       throw new Error(`Token ${token.id} is missing symbol or adapter.`);
+    }
+    if (typeof token.depositEnabled !== "boolean" || typeof token.jobSubmissionEnabled !== "boolean") {
+      throw new Error(`Token ${token.id} is missing deposit or submission metadata.`);
+    }
+    if (!token.pricingMode) {
+      throw new Error(`Token ${token.id} is missing pricing metadata.`);
     }
   }
 

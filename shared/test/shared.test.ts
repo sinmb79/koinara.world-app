@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { buildProofSnapshot, computeRequestHash, computeResponseHash, computeSchemaHash, hashVectors, reduceJobProgress } from "../src";
+import {
+  buildProofSnapshot,
+  buildRunSnapshot,
+  buildUsdDepositQuote,
+  computeRequestHash,
+  computeResponseHash,
+  computeSchemaHash,
+  hashVectors,
+  reduceJobProgress
+} from "../src";
 import { getChainProfileConfig, getDefaultChainConfig } from "../src/config/defaultConfigs";
 
 describe("hash parity fixtures", () => {
@@ -73,5 +82,80 @@ describe("proof snapshot", () => {
     expect(proof.poiHash).toBe("0xpoi");
     expect(proof.explorerUrl).toContain("/tx-or-job/3");
     expect(proof.approvedVerifiers).toHaveLength(3);
+  });
+});
+
+describe("deposit quotes", () => {
+  it("builds a 10 USD-equivalent quote for the live Worldland token", () => {
+    const config = getDefaultChainConfig("testnet");
+    const quote = buildUsdDepositQuote(config, "worldland-wlc", "10");
+
+    expect(quote.available).toBe(true);
+    expect(quote.depositAmount).toBe("10.0");
+    expect(quote.amountBaseUnits).toBe("10000000000000000000");
+  });
+
+  it("keeps a staged peg token disabled until its payment rail is enabled", () => {
+    const profile = getChainProfileConfig("mainnet");
+    const config = structuredClone(profile.networks["ethereum-mainnet"]);
+    const token = config.payments.supportedTokens.find((entry) => entry.id === "ethereum-usdc");
+
+    config.enabled = true;
+    config.depositEnabled = true;
+    config.jobSubmissionEnabled = true;
+
+    if (!token) {
+      throw new Error("Missing ethereum-usdc fixture.");
+    }
+
+    token.enabled = true;
+    token.depositEnabled = false;
+    token.jobSubmissionEnabled = false;
+
+    const quote = buildUsdDepositQuote(config, "ethereum-usdc", "10");
+
+    expect(quote.available).toBe(false);
+    expect(quote.reasonDisabled).toContain("not live yet");
+  });
+});
+
+describe("run snapshot reducer", () => {
+  it("falls back to truthful chain-only lanes when no artifact is present", () => {
+    const snapshot = buildRunSnapshot({
+      requestHash: "0xrequest",
+      chainState: "Open",
+      jobId: 10
+    });
+
+    expect(snapshot.detailsStatus).toBe("chain-only");
+    expect(snapshot.lanes.find((lane) => lane.stage === "execute")?.status).toBe("active");
+  });
+
+  it("prefers published run artifacts when they are available", () => {
+    const snapshot = buildRunSnapshot({
+      requestHash: "0xrequest",
+      chainState: "Submitted",
+      jobId: 10,
+      artifact: {
+        version: "koinara-run-snapshot-v1",
+        requestHash: "0xrequest",
+        workflowMode: "collective",
+        detailsStatus: "available",
+        state: "Submitted",
+        lanes: [
+          {
+            id: "planning",
+            label: "Planner",
+            stage: "planning",
+            status: "completed",
+            detail: "Planner published a collective branch map."
+          }
+        ]
+      }
+    });
+
+    expect(snapshot.detailsStatus).toBe("available");
+    expect(snapshot.workflowMode).toBe("collective");
+    expect(snapshot.lanes).toHaveLength(1);
   });
 });

@@ -10,6 +10,8 @@ describe("network reducer", () => {
         id: "worldland-testnet",
         label: "Worldland Testnet",
         enabled: true,
+        depositEnabled: true,
+        jobSubmissionEnabled: true,
         chainId: 0,
         rpcUrl: "",
         backupRpcUrls: [],
@@ -19,6 +21,7 @@ describe("network reducer", () => {
         nativeToken: { type: "native", symbol: "WLC" },
         contracts: { registry: "", verifier: "", rewardDistributor: "", token: "" },
         discoveryDefaults: { writableRoot: "./shared-root", resultRoot: "./shared-root" },
+        artifactTransport: { mode: "ipfs-first", publicBaseUrl: "https://example.test/discovery", gatewayUrls: [] },
         payments: { defaultTokenId: "worldland-wlc", supportedTokens: [] },
         fees: {
           minimumPremiumByJobType: {

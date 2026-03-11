@@ -9,6 +9,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@koinara/shared": "file:../shared"
+    "@koinara/shared": "file:../shared",
+    "@walletconnect/ethereum-provider": "^2.17.1"
   }
 }
