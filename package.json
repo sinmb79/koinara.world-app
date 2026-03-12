@@ -8,6 +8,7 @@
     "site"
   ],
   "scripts": {
+    "dev:site": "npm run dev --workspace site",
     "verify": "npm run typecheck && npm run test && npm run build",
     "build": "npm run build --workspace shared && npm run build --workspace app && npm run build --workspace site",
     "build:site": "npm run build --workspace site",

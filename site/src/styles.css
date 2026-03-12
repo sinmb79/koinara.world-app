@@ -167,8 +167,7 @@ button {
 }
 
 .nav-copy {
-  display: grid;
-  gap: 0.12rem;
+  display: block;
 }
 
 .nav-copy strong {
@@ -491,39 +490,8 @@ button {
 }
 
 .deposit-console {
-  display: block;
-}
-
-.deposit-shell {
   display: grid;
-  grid-template-columns: 1.05fr 1.55fr;
   gap: 1.1rem;
-}
-
-.deposit-visual-card,
-.deposit-controls-card {
-  min-height: 100%;
-}
-
-.deposit-visual-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  text-align: center;
-  background:
-    radial-gradient(circle at center, rgba(17, 233, 239, 0.08), transparent 38%),
-    linear-gradient(180deg, rgba(9, 33, 57, 0.96), rgba(7, 24, 43, 0.96));
-}
-
-.deposit-visual-icon {
-  width: 5rem;
-  height: 5rem;
-  border-radius: 1rem;
-  background: rgba(17, 233, 239, 0.16);
-  color: var(--primary);
-  font-size: 2rem;
 }
 
 .deposit-controls-card {
@@ -681,6 +649,15 @@ button {
 .token-card.selected {
   border-color: rgba(17, 233, 239, 0.48);
   background: rgba(17, 233, 239, 0.08);
+}
+
+.token-card strong {
+  font-size: 1rem;
+}
+
+.token-card span,
+.token-card small {
+  line-height: 1.45;
 }
 
 .token-card-top {
@@ -1118,7 +1095,6 @@ button {
 }
 
 @media (max-width: 1180px) {
-  .deposit-shell,
   .result-layout {
     grid-template-columns: 1fr;
   }

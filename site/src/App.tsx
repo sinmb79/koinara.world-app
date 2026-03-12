@@ -11,35 +11,30 @@ const navigationItems = [
     to: "/",
     label: "Home",
     title: "Deposit and wallet",
-    description: "Lock the deposit before opening a job request.",
     icon: "home"
   },
   {
     to: "/guide",
     label: "Guide",
     title: "Submit flow",
-    description: "Walk through the full web submit sequence.",
     icon: "menu_book"
   },
   {
     to: "/download",
     label: "Download",
     title: "Desktop and node",
-    description: "Install the desktop client and the node binary.",
     icon: "download"
   },
   {
     to: "/docs",
     label: "Docs",
     title: "Protocol references",
-    description: "Read the protocol, discovery, and operator notes.",
     icon: "article"
   },
   {
     to: "/network",
     label: "Network",
     title: "Live chain dashboard",
-    description: "Inspect participants, activity, and staged token rails.",
     icon: "public"
   }
 ] as const;
@@ -70,13 +65,13 @@ export function App() {
               to={item.to}
               end={item.to === "/"}
               className={({ isActive }) => `site-side-link ${isActive ? "active" : ""}`}
+              title={item.title}
             >
               <span className="material-symbols-outlined nav-icon" aria-hidden="true">
                 {item.icon}
               </span>
               <div className="nav-copy">
                 <strong>{item.label}</strong>
-                <span>{item.description}</span>
               </div>
             </NavLink>
           ))}
@@ -108,7 +103,6 @@ export function App() {
                 view_kanban
               </span>
               <div>
-                <p className="site-eyebrow">{currentPage.title}</p>
                 <h1>{currentPage.label}</h1>
               </div>
             </div>
