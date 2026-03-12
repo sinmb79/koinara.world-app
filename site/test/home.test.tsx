@@ -60,7 +60,7 @@ describe("home submit flow", () => {
     );
 
     expect(screen.getByRole("button", { name: /claim refund/i })).toBeInTheDocument();
-    expect(screen.getByText(/creator actions/i)).toBeInTheDocument();
+    expect(screen.getByText(/operational costs/i)).toBeInTheDocument();
   });
 });
 

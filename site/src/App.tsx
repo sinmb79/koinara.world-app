@@ -10,47 +10,57 @@ const navigationItems = [
   {
     to: "/",
     label: "Home",
-    title: "Web submit dApp",
-    description: "Deposit, compose, open the swarm, and inspect proof."
+    title: "Deposit and wallet",
+    description: "Lock the deposit before opening a job request.",
+    icon: "home"
   },
   {
     to: "/guide",
     label: "Guide",
-    title: "How to submit a job",
-    description: "Follow the deposit-first flow from wallet connect to final proof."
+    title: "Submit flow",
+    description: "Walk through the full web submit sequence.",
+    icon: "menu_book"
   },
   {
     to: "/download",
     label: "Download",
-    title: "App and node releases",
-    description: "Install the desktop client and the independent node software."
+    title: "Desktop and node",
+    description: "Install the desktop client and the node binary.",
+    icon: "download"
   },
   {
     to: "/docs",
     label: "Docs",
-    title: "Protocol and operator docs",
-    description: "Read protocol notes, discovery specs, and operator references."
+    title: "Protocol references",
+    description: "Read the protocol, discovery, and operator notes.",
+    icon: "article"
   },
   {
     to: "/network",
     label: "Network",
-    title: "Live network dashboard",
-    description: "Inspect chain activity, token profiles, and participant counts."
+    title: "Live chain dashboard",
+    description: "Inspect participants, activity, and staged token rails.",
+    icon: "public"
   }
 ] as const;
 
 export function App() {
   const location = useLocation();
-  const { activeSession, dashboardData, sessions, wallet } = useSitePortal();
+  const { activeSession, dashboardData, wallet } = useSitePortal();
   const currentPage =
     navigationItems.find((item) => isRouteSelected(item.to, location.pathname)) ?? navigationItems[0];
-  const recentSessions = sessions.slice(0, 4);
 
   return (
     <div className="site-app-shell">
       <aside className="site-sidebar">
         <Link to="/" className="site-brand">
-          KOINARA.WORLD
+          <span className="site-brand-mark material-symbols-outlined" aria-hidden="true">
+            hub
+          </span>
+          <span className="site-brand-copy">
+            <strong>KOINARA.WORLD</strong>
+            <small>Swarm intelligence</small>
+          </span>
         </Link>
 
         <nav className="site-side-nav" aria-label="Primary">
@@ -61,58 +71,63 @@ export function App() {
               end={item.to === "/"}
               className={({ isActive }) => `site-side-link ${isActive ? "active" : ""}`}
             >
-              <strong>{item.label}</strong>
-              <span>{item.description}</span>
+              <span className="material-symbols-outlined nav-icon" aria-hidden="true">
+                {item.icon}
+              </span>
+              <div className="nav-copy">
+                <strong>{item.label}</strong>
+                <span>{item.description}</span>
+              </div>
             </NavLink>
           ))}
         </nav>
 
-        <section className="site-sidebar-section">
-          <div className="site-sidebar-heading">
-            <span className="sidebar-bullet" aria-hidden="true" />
-            <strong>Recent runs</strong>
-          </div>
-
-          {recentSessions.length ? (
-            <ul className="site-recent-list">
-              {recentSessions.map((session) => (
-                <li key={session.id}>
-                  <strong>{session.prompt.slice(0, 48) || "Untitled request"}</strong>
-                  <span>{session.networkLabel}</span>
-                  <small>{session.lastKnownState}</small>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="site-sidebar-empty">
-              <strong>{dashboardData.networkLabel}</strong>
-              <p>No local submissions yet. The sidebar will fall back to the live network view until you open your first run.</p>
-            </div>
-          )}
-        </section>
-
         <section className="site-sidebar-status">
-          <strong>{dashboardData.networkLabel}</strong>
-          <p>{activeSession ? `Active run: ${activeSession.lastKnownState}` : "Ready to open a new run"}</p>
-          <small>
-            {dashboardData.status === "ready"
-              ? "No backend. The browser reads chain state plus public discovery artifacts."
-              : dashboardData.reason}
-          </small>
+          <div className="profile-chip">
+            <span className="material-symbols-outlined" aria-hidden="true">
+              person
+            </span>
+          </div>
+          <div className="profile-copy">
+            <strong>{wallet.address ? `${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}` : "Guest session"}</strong>
+            <span>{activeSession ? `Active run: ${activeSession.lastKnownState}` : dashboardData.networkLabel}</span>
+            <small>
+              {dashboardData.status === "ready"
+                ? "Browser reads chain state and public discovery artifacts."
+                : dashboardData.reason}
+            </small>
+          </div>
         </section>
       </aside>
 
       <div className="site-main-shell">
         <header className="site-topbar">
           <div className="site-topbar-copy">
-            <p className="site-eyebrow">{currentPage.title}</p>
-            <h1>{currentPage.label}</h1>
+            <div className="site-topbar-heading">
+              <span className="material-symbols-outlined topbar-icon" aria-hidden="true">
+                view_kanban
+              </span>
+              <div>
+                <p className="site-eyebrow">{currentPage.title}</p>
+                <h1>{currentPage.label}</h1>
+              </div>
+            </div>
           </div>
 
           <div className="site-topbar-actions">
-            <span className="site-status-pill">{dashboardData.networkLabel}</span>
+            <label className="site-search" aria-label="Search operations">
+              <span className="material-symbols-outlined" aria-hidden="true">
+                search
+              </span>
+              <input type="search" placeholder={location.pathname === "/network" ? "Search network..." : "Search operations..."} />
+            </label>
+            <button type="button" className="icon-button" aria-label="Notifications">
+              <span className="material-symbols-outlined" aria-hidden="true">
+                notifications
+              </span>
+            </button>
             <Link to="/" className="wallet-button">
-              {wallet.address ? `${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}` : "Connect wallet"}
+              {wallet.address ? `${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}` : "Connect Wallet"}
             </Link>
           </div>
         </header>
